@@ -10,7 +10,8 @@
     "coverage": "jest --coverage"
   },
   "dependencies": {
-    "@prismicio/client": "^4.0.0",
+    "@prismicio/client": "^6.2.0",
+    "@prismicio/custom-types-client": "^0.0.6",
     "date-fns": "^2.19.0",
     "next": "10.0.7",
     "prismic-dom": "^2.2.5",
