@@ -1,0 +1,16 @@
+.previewbutton{
+    display: flex;
+    max-width:720px;
+    height: 4rem;
+    margin: 5rem auto 5rem;
+    align-items: center;
+    background: var(--white);
+    border-radius: 4px;
+
+    >a{
+        margin: auto;
+        color: var(--black);
+        font-size: 1.125rem;
+    }
+
+}

@@ -6,9 +6,9 @@ import { format } from 'date-fns';
 import ptBR from 'date-fns/locale/pt-BR';
 import styles from './home.module.scss';
 import { useEffect, useState } from 'react';
-import Link from "next/link";
-import { predicates } from '@prismicio/client'
-import { RichText } from 'prismic-dom';
+import Link from 'next/link';
+import { predicates } from '@prismicio/client';
+import PreviewButton from '../components/PreviewButton';
 
 interface Post {
   uid?: string;
@@ -27,6 +27,7 @@ interface PostPagination {
 
 interface HomeProps {
   postsPagination: PostPagination;
+  preview: boolean;
 }
 
 function formatData(dataUnformat: string): string {
@@ -35,7 +36,10 @@ function formatData(dataUnformat: string): string {
   });
 }
 
-export default function Home({ postsPagination }: HomeProps): JSX.Element {
+export default function Home({
+  postsPagination,
+  preview,
+}: HomeProps): JSX.Element {
   const [posts, setPosts] = useState<Post[]>([]);
   const [nextPage, setNextPage] = useState<string>('');
 
@@ -70,7 +74,6 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
       <main className={styles.container}>
         <div className={styles.posts}>
           {posts.map(post => {
-            
             return (
               <Link href={`/post/${post.uid}`}>
                 <a key={post.uid}>
@@ -97,21 +100,25 @@ export default function Home({ postsPagination }: HomeProps): JSX.Element {
             ''
           )}
         </div>
+
+        {preview && <PreviewButton />}
       </main>
     </>
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
+export const getStaticProps: GetStaticProps = async ({
+  preview = false,
+  previewData,
+}) => {
   const prismic = getPrismicClient();
 
-  const postsResponse = await prismic.query(
-    [predicates.at('document.type', 'posts')],
-    {
-      fetch: ['post.title', 'post.subtitle', 'post.author'],
-      pageSize: 20,
-    }
-  );
+  const postsResponse = await prismic.get({
+    fetch: ['posts.title', 'posts.subtitle', 'posts.author'],
+    pageSize: 20,
+    ref: previewData?.ref ?? null,
+    orderings: { field: 'document.first_publication_date', direction: 'desc' },
+  });
 
   const posts = postsResponse.results.map(post => {
     return {
@@ -127,6 +134,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       postsPagination: { next_page: postsResponse.next_page, results: posts },
+      preview,
     },
   };
 };
